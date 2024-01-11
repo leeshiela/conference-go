@@ -120,6 +120,7 @@ def api_show_presentation(request, id):
         content = json.loads(request.body)
         try:
             if "conference" in content:
+                print(content)
                 conference = Conference.objects.get(
                     name=content["conference"]["name"]
                 )

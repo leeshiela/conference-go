@@ -3,6 +3,7 @@ from common.json import ModelEncoder
 from .models import Conference, Location, State
 from django.views.decorators.http import require_http_methods
 import json
+from .acls import get_photo, get_weather_data
 
 
 class ConferenceListEncoder(ModelEncoder):
@@ -102,8 +103,14 @@ def api_show_conference(request, id):
     """
     if request.method == "GET":
         conference = Conference.objects.get(id=id)
+        weather = get_weather_data(
+            conference.location.city, conference.location.state.abbreviation
+        )
+        # content.update(weather) Don't need b/c not updating, just showing
         return JsonResponse(
-            conference, encoder=ConferenceDetailEncoder, safe=False
+            {"conference": conference, "weather": weather},
+            encoder=ConferenceDetailEncoder,
+            safe=False,
         )
     elif request.method == "DELETE":
         count, _ = Conference.objects.filter(id=id).delete()
@@ -125,6 +132,7 @@ def api_show_conference(request, id):
         Conference.objects.filter(id=id).update(**content)
 
         conference = Conference.objects.get(id=id)
+
         return JsonResponse(
             conference,
             encoder=ConferenceDetailEncoder,
@@ -166,6 +174,15 @@ def api_list_locations(request):
             return JsonResponse(
                 {"message": "Invalid state abbreviation"}, status=400
             )
+        # city = Location.objects.get(city=content["city"])
+        # content["city"] = city
+
+        # state = State.objects.get(abbreviation=content["state"])
+        # content["state"] = state
+
+        photo = get_photo(content["city"], content["state"].abbreviation)
+        content.update(photo)
+
         location = Location.objects.create(**content)
         return JsonResponse(location, encoder=LocationDetailEncoder, safe=False)
 
@@ -178,6 +195,7 @@ class LocationDetailEncoder(ModelEncoder):
         "room_count",
         "created",
         "updated",
+        "picture_url",
     ]
 
     def get_extra_data(self, o):
