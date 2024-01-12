@@ -174,11 +174,6 @@ def api_list_locations(request):
             return JsonResponse(
                 {"message": "Invalid state abbreviation"}, status=400
             )
-        # city = Location.objects.get(city=content["city"])
-        # content["city"] = city
-
-        # state = State.objects.get(abbreviation=content["state"])
-        # content["state"] = state
 
         photo = get_photo(content["city"], content["state"].abbreviation)
         content.update(photo)
