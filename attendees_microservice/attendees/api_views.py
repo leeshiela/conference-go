@@ -7,7 +7,8 @@ import json
 
 
 class ConferenceVODetailEncoder(ModelEncoder):
-    model = ConferenceVODetailEncoderproperties = ["name", "import_href"]
+    model = ConferenceVO
+    properties = ["name", "import_href"]
 
 
 class AttendeesListEncoder(ModelEncoder):
